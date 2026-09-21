@@ -113,20 +113,24 @@ void GameManager::Update()
     //Collision
     for (auto it1 = mEntities.begin(); it1 != mEntities.end(); ++it1)
     {
+		Entity* e1 = *it1;
+		if (e1->mCollisionType == Entity::CollisionType::Ignore)
+			continue;
+
         auto it2 = it1;
         ++it2;
         for (; it2 != mEntities.end(); ++it2)
         {
-            Entity* entity = *it1;
-            Entity* otherEntity = *it2;
+            Entity* e2 = *it2;
+			if (e2->mCollisionType == Entity::CollisionType::Ignore)
+				continue;
 
-            if (entity->IsColliding(otherEntity))
+            if (e1->IsColliding(e2))
             {
-				if (entity->IsRigidBody() && otherEntity->IsRigidBody())
-					entity->Repulse(otherEntity);
+				e1->CollisionReaction(e2);
 
-                entity->OnCollision(otherEntity);
-                otherEntity->OnCollision(entity);
+				e1->OnCollision(e2);
+				e2->OnCollision(e1);
             }
         }
     }

@@ -20,6 +20,21 @@ class Entity
 		bool isSet;
     };
 
+public:
+	enum MotionType 
+	{
+		Static,
+		Kinematic,
+		Dynamic
+	};
+
+	enum CollisionType 
+	{
+		Ignore,
+		Overlap,
+		Block
+	};
+
 protected:
     sf::CircleShape mShape;
     sf::Vector2f mDirection;
@@ -27,7 +42,9 @@ protected:
     float mSpeed = 0.f;
     bool mToDestroy = false;
     int mTag = -1;
-	bool mRigidBody = false;
+
+	MotionType mMotionType;
+	CollisionType mCollisionType;
 
 public:
 	bool GoToward(sf::Vector2f position, float speed = -1.f);
@@ -37,8 +54,8 @@ public:
 	void SetSpeed(float speed) { mSpeed = speed; }
 	void SetTag(int tag) { mTag = tag; }
 	float GetRadius() const { return mShape.getRadius(); }
-	void SetRigidBody(bool isRigitBody) { mRigidBody = isRigitBody; }
-	bool IsRigidBody() const { return mRigidBody; }
+	void SetMotionType(MotionType type) { mMotionType = type; }
+	void SetCollisionType(CollisionType type) { mCollisionType = type; }
 
     sf::Vector2f GetPosition(float ratioX = 0.5f, float ratioY = 0.5f) const;
 	sf::Shape* GetShape() { return &mShape; }
@@ -72,6 +89,7 @@ private:
     void Update();
 	void Initialize(float radius, const sf::Color& color);
 	void Repulse(Entity* other);
+	void CollisionReaction(Entity* other);
 
     friend class GameManager;
     friend Scene;

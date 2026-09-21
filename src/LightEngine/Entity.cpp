@@ -17,6 +17,9 @@ void Entity::Initialize(float radius, const sf::Color& color)
 
 	mTarget.isSet = false;
 
+	mMotionType = MotionType::Static;
+	mCollisionType = CollisionType::Ignore;
+
 	OnInitialize();
 }
 
@@ -41,6 +44,17 @@ void Entity::Repulse(Entity* other)
 
 	SetPosition(position1, 0.5f, 0.5f);
 	other->SetPosition(position2, 0.5f, 0.5f);
+}
+
+
+void Entity::CollisionReaction(Entity* other) 
+{
+	if (mCollisionType == CollisionType::Overlap)
+		return;
+
+	if (other->mCollisionType == CollisionType::Overlap)
+		return;
+
 }
 
 bool Entity::IsColliding(Entity* other) const
