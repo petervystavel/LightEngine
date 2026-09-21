@@ -14,16 +14,16 @@ void Entity::Initialize(float radius, const sf::Color& color)
 	mShape.setOrigin(0.f, 0.f);
 	mShape.setRadius(radius);
 	mShape.setFillColor(color);
-	
+
 	mTarget.isSet = false;
 
 	OnInitialize();
 }
 
-void Entity::Repulse(Entity* other) 
+void Entity::Repulse(Entity* other)
 {
 	sf::Vector2f distance = GetPosition(0.5f, 0.5f) - other->GetPosition(0.5f, 0.5f);
-	
+
 	float sqrLength = (distance.x * distance.x) + (distance.y * distance.y);
 	float length = std::sqrt(sqrLength);
 
@@ -39,8 +39,8 @@ void Entity::Repulse(Entity* other)
 	sf::Vector2f position1 = GetPosition(0.5f, 0.5f) - translation;
 	sf::Vector2f position2 = other->GetPosition(0.5f, 0.5f) + translation;
 
-	SetPosition(position1.x, position1.y, 0.5f, 0.5f);
-	other->SetPosition(position2.x, position2.y, 0.5f, 0.5f);
+	SetPosition(position1, 0.5f, 0.5f);
+	other->SetPosition(position2, 0.5f, 0.5f);
 }
 
 bool Entity::IsColliding(Entity* other) const
@@ -76,22 +76,23 @@ void Entity::Destroy()
 	OnDestroy();
 }
 
-void Entity::SetPosition(float x, float y, float ratioX, float ratioY)
+void Entity::SetPosition(sf::Vector2f newPosition, float ratioX, float ratioY)
 {
 	float size = mShape.getRadius() * 2;
 
-	x -= size * ratioX;
-	y -= size * ratioY;
+	newPosition.x -= size * ratioX;
+	newPosition.y -= size * ratioY;
 
-	mShape.setPosition(x, y);
+	mShape.setPosition(newPosition.x, newPosition.y);
 
-	//#TODO Optimise
-	if (mTarget.isSet) 
+	if (mTarget.isSet)
 	{
-		sf::Vector2f position = GetPosition(0.5f, 0.5f);
-		mTarget.distance = Utils::GetDistance(position.x, position.y, mTarget.position.x, mTarget.position.y);
-		GoToDirection(mTarget.position.x, mTarget.position.y);
-		mTarget.isSet = true;
+		GoTo(mTarget.position);
+
+		//sf::Vector2f position = GetPosition(0.5f, 0.5f);
+		//mTarget.distance = Utils::GetDistance(position.x, position.y, mTarget.position.x, mTarget.position.y);
+		//GoToward({ mTarget.position.x, mTarget.position.y });
+		//mTarget.isSet = true;
 	}
 }
 
@@ -106,40 +107,43 @@ sf::Vector2f Entity::GetPosition(float ratioX, float ratioY) const
 	return position;
 }
 
-bool Entity::GoToDirection(int x, int y, float speed)
+bool Entity::GoToward(sf::Vector2f newPosition, float speed)
 {
 	sf::Vector2f position = GetPosition(0.5f, 0.5f);
-	sf::Vector2f direction = sf::Vector2f(x - position.x, y - position.y);
-	
+
+	sf::Vector2f direction = newPosition - position;
 	bool success = Utils::Normalize(direction);
 	if (success == false)
 		return false;
 
-	SetDirection(direction.x, direction.y, speed);
+	SetDirection(direction, speed);
 
 	return true;
 }
 
-bool Entity::GoToPosition(int x, int y, float speed)
+bool Entity::GoTo(sf::Vector2f newPosition, float speed)
 {
-	if (GoToDirection(x, y, speed) == false)
+	if (GoToward(newPosition, speed) == false)
 		return false;
 
 	sf::Vector2f position = GetPosition(0.5f, 0.5f);
 
-	mTarget.position = { x, y };
-	mTarget.distance = Utils::GetDistance(position.x, position.y, x, y);
+	mTarget.position = newPosition;
+	mTarget.distance = Utils::GetDistance(newPosition.x, newPosition.y, position.x, position.y);
 	mTarget.isSet = true;
 
 	return true;
 }
 
-void Entity::SetDirection(float x, float y, float speed)
+void Entity::SetDirection(sf::Vector2f direction, float speed)
 {
 	if (speed > 0)
 		mSpeed = speed;
 
-	mDirection = sf::Vector2f(x, y);
+	bool success = Utils::Normalize(direction);
+	_ASSERT(success);
+
+	mDirection = direction;
 	mTarget.isSet = false;
 }
 
@@ -150,24 +154,20 @@ void Entity::Update()
 	sf::Vector2f translation = distance * mDirection;
 	mShape.move(translation);
 
-	if (mTarget.isSet) 
+	if (mTarget.isSet)
 	{
-		float x1 = GetPosition(0.5f, 0.5f).x;
-		float y1 = GetPosition(0.5f, 0.5f).y;
+		sf::Vector2f position = GetPosition(0.5f, 0.5f);
+		sf::Vector2f target = mTarget.position;
 
-		float x2 = x1 + mDirection.x * mTarget.distance;
-		float y2 = y1 + mDirection.y * mTarget.distance;
-
-		Debug::DrawLine(x1, y1, x2, y2, sf::Color::Cyan);
-
-		Debug::DrawCircle(mTarget.position.x, mTarget.position.y, 5.f, sf::Color::Magenta);
+		Debug::DrawLine(position, target, sf::Color::Cyan);
+		Debug::DrawCircle(target, 5.f, sf::Color::Magenta);
 
 		mTarget.distance -= distance;
 
 		if (mTarget.distance <= 0.f)
 		{
-			SetPosition(mTarget.position.x, mTarget.position.y, 0.5f, 0.5f);
-			mDirection = sf::Vector2f(0.f, 0.f);
+			SetPosition(mTarget.position, 0.5f, 0.5f);
+			mDirection = { 0, 0 };
 			mTarget.isSet = false;
 		}
 	}

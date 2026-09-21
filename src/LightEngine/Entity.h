@@ -15,7 +15,7 @@ class Entity
 {
     struct Target 
     {
-		sf::Vector2i position;
+		sf::Vector2f position;
         float distance;
 		bool isSet;
     };
@@ -30,10 +30,10 @@ protected:
 	bool mRigidBody = false;
 
 public:
-	bool GoToDirection(int x, int y, float speed = -1.f);
-    bool GoToPosition(int x, int y, float speed = -1.f);
-    void SetPosition(float x, float y, float ratioX = 0.5f, float ratioY = 0.5f);
-	void SetDirection(float x, float y, float speed = -1.f);
+	bool GoToward(sf::Vector2f position, float speed = -1.f);
+    bool GoTo(sf::Vector2f position, float speed = -1.f);
+    void SetPosition(sf::Vector2f position, float ratioX = 0.5f, float ratioY = 0.5f);
+	void SetDirection(sf::Vector2f direction, float speed = -1.f);
 	void SetSpeed(float speed) { mSpeed = speed; }
 	void SetTag(int tag) { mTag = tag; }
 	float GetRadius() const { return mShape.getRadius(); }

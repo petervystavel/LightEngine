@@ -37,44 +37,49 @@ void Debug::Draw(sf::RenderWindow* pRenderWindow)
 	mCircles.clear();
 }
 
-void Debug::DrawLine(float x1, float y1, float x2, float y2, const sf::Color& color)
+void Debug::DrawLine(sf::Vector2f p1, sf::Vector2f p2, const sf::Color& color)
 {
 	Line line;
 
-	line.start = sf::Vertex(sf::Vector2f(x1, y1));
+	line.start = sf::Vertex(p1);
 	line.start.color = color;
 
-	line.end = sf::Vertex(sf::Vector2f(x2, y2));
+	line.end = sf::Vertex(p2);
 	line.end.color = color;
 
 	Debug::Get()->mLines.push_back(line);
 }
 
-void Debug::DrawRectangle(float x, float y, float width, float height, const sf::Color& color)
+void Debug::DrawRectangle(sf::Vector2f position, float width, float height, const sf::Color& color)
 {
-	DrawLine(x, y, x + width, y, color);
-	DrawLine(x + width, y, x + width, y + height, color);
-	DrawLine(x + width, y + height, x, y + height, color);
-	DrawLine(x, y + height, x, y, color);
+	sf::Vector2f topLeft = position;
+	sf::Vector2f topRight = { position.x + width, position.y };
+	sf::Vector2f bottomRight = { position.x + width, position.y + height };
+	sf::Vector2f bottomLeft = { position.x, position.y + height };
+
+	DrawLine(topLeft, topRight, color);
+	DrawLine(topRight, bottomRight, color);
+	DrawLine(bottomRight, bottomLeft, color);
+	DrawLine(bottomLeft, topLeft, color);
 }
 
-void Debug::DrawCircle(float x, float y, float radius, const sf::Color& color)
+void Debug::DrawCircle(sf::Vector2f center, float radius, const sf::Color& color)
 {
 	sf::CircleShape circle;
 
 	circle.setRadius(radius);
 	circle.setFillColor(color);
-	circle.setPosition(x - radius, y - radius);
+	circle.setPosition(center.x - radius, center.y - radius);
 
 	Debug::Get()->mCircles.push_back(circle);
 }
 
-void Debug::DrawText(float x, float y, const std::string& text, const sf::Color& color)
+void Debug::DrawText(sf::Vector2f position, const std::string& text, const sf::Color& color)
 {
-	DrawText(x, y, text, 0.f, 0.f, color);
+	DrawText(position, text, 0.f, 0.f, color);
 }
 
-void Debug::DrawText(float x, float y, const std::string& text, float ratioX, float ratioY, const sf::Color& color)
+void Debug::DrawText(sf::Vector2f position, const std::string& text, float ratioX, float ratioY, const sf::Color& color)
 {
 	_ASSERT(ratioX >= 0.f && ratioX <= 1.f);
 	_ASSERT(ratioY >= 0.f && ratioY <= 1.f);
@@ -85,7 +90,7 @@ void Debug::DrawText(float x, float y, const std::string& text, float ratioX, fl
 	sfText.setString(text);
 	sfText.setCharacterSize(20);
 	sfText.setFillColor(color);
-	sfText.setPosition(x, y);
+	sfText.setPosition(position.x, position.y);
 
 	const sf::FloatRect& bounds = sfText.getLocalBounds();
 	sfText.setOrigin(bounds.width * ratioX, bounds.height * ratioY);
