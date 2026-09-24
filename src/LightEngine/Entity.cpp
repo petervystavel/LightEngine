@@ -7,54 +7,17 @@
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
 
+#include <iostream>
+
 void Entity::Initialize(float radius, const sf::Color& color)
 {
-	mDirection = sf::Vector2f(0.0f, 0.0f);
+	mVelocity = { 0, 0 };
 
 	mShape.setOrigin(0.f, 0.f);
 	mShape.setRadius(radius);
 	mShape.setFillColor(color);
 
-	mTarget.isSet = false;
-
-	mMotionType = MotionType::Static;
-	mCollisionType = CollisionType::Ignore;
-
 	OnInitialize();
-}
-
-void Entity::Repulse(Entity* other)
-{
-	sf::Vector2f distance = GetPosition(0.5f, 0.5f) - other->GetPosition(0.5f, 0.5f);
-
-	float sqrLength = (distance.x * distance.x) + (distance.y * distance.y);
-	float length = std::sqrt(sqrLength);
-
-	float radius1 = mShape.getRadius();
-	float radius2 = other->mShape.getRadius();
-
-	float overlap = (length - (radius1 + radius2)) * 0.5f;
-
-	sf::Vector2f normal = distance / length;
-
-	sf::Vector2f translation = overlap * normal;
-
-	sf::Vector2f position1 = GetPosition(0.5f, 0.5f) - translation;
-	sf::Vector2f position2 = other->GetPosition(0.5f, 0.5f) + translation;
-
-	SetPosition(position1, 0.5f, 0.5f);
-	other->SetPosition(position2, 0.5f, 0.5f);
-}
-
-
-void Entity::CollisionReaction(Entity* other) 
-{
-	if (mCollisionType == CollisionType::Overlap)
-		return;
-
-	if (other->mCollisionType == CollisionType::Overlap)
-		return;
-
 }
 
 bool Entity::IsColliding(Entity* other) const
@@ -90,6 +53,42 @@ void Entity::Destroy()
 	OnDestroy();
 }
 
+void Entity::AddForce(sf::Vector2f direction, float strength)
+{
+	mForces.push_back({ direction, strength });
+}
+
+void Entity::AddImpulse(sf::Vector2f direction, float impulse)
+{
+	Utils::Normalize(direction);
+
+	mVelocity += direction * impulse;
+}
+
+void Entity::AddImpulse(sf::Vector2f velocity)
+{
+	mVelocity += velocity;
+}
+
+void Entity::TryBounce(sf::Vector2f normal, float restitution)
+{
+	float dotProduct = Utils::Dot(mVelocity, normal);
+	if (dotProduct <= 0)
+		return;
+
+	Bounce(normal, restitution);
+}
+
+void Entity::Bounce(sf::Vector2f normal, float restitution)
+{
+	float dotProduct = Utils::Dot(mVelocity, normal);
+	sf::Vector2f v1 = normal * dotProduct;
+	sf::Vector2f v2 = mVelocity - v1;
+	v1 *= -1.f;
+
+	mVelocity = (v1 + v2) * restitution;
+}
+
 void Entity::SetPosition(sf::Vector2f newPosition, float ratioX, float ratioY)
 {
 	float size = mShape.getRadius() * 2;
@@ -98,16 +97,6 @@ void Entity::SetPosition(sf::Vector2f newPosition, float ratioX, float ratioY)
 	newPosition.y -= size * ratioY;
 
 	mShape.setPosition(newPosition.x, newPosition.y);
-
-	if (mTarget.isSet)
-	{
-		GoTo(mTarget.position);
-
-		//sf::Vector2f position = GetPosition(0.5f, 0.5f);
-		//mTarget.distance = Utils::GetDistance(position.x, position.y, mTarget.position.x, mTarget.position.y);
-		//GoToward({ mTarget.position.x, mTarget.position.y });
-		//mTarget.isSet = true;
-	}
 }
 
 sf::Vector2f Entity::GetPosition(float ratioX, float ratioY) const
@@ -121,71 +110,65 @@ sf::Vector2f Entity::GetPosition(float ratioX, float ratioY) const
 	return position;
 }
 
-bool Entity::GoToward(sf::Vector2f newPosition, float speed)
+float Entity::GetX(float ratioX) const
 {
-	sf::Vector2f position = GetPosition(0.5f, 0.5f);
+	float size = mShape.getRadius() * 2;
+	sf::Vector2f position = mShape.getPosition();
 
-	sf::Vector2f direction = newPosition - position;
-	bool success = Utils::Normalize(direction);
-	if (success == false)
-		return false;
+	position.x += size * ratioX;
 
-	SetDirection(direction, speed);
-
-	return true;
+	return position.x;
 }
 
-bool Entity::GoTo(sf::Vector2f newPosition, float speed)
+float Entity::GetY(float ratioY) const
 {
-	if (GoToward(newPosition, speed) == false)
-		return false;
+	float size = mShape.getRadius() * 2;
+	sf::Vector2f position = mShape.getPosition();
 
-	sf::Vector2f position = GetPosition(0.5f, 0.5f);
+	position.y += size * ratioY;
 
-	mTarget.position = newPosition;
-	mTarget.distance = Utils::GetDistance(newPosition.x, newPosition.y, position.x, position.y);
-	mTarget.isSet = true;
-
-	return true;
+	return position.y;
 }
 
-void Entity::SetDirection(sf::Vector2f direction, float speed)
+void Entity::FixedUpdate()
 {
-	if (speed > 0)
-		mSpeed = speed;
+	float fixedDt = GetFixedDeltaTime();
 
-	bool success = Utils::Normalize(direction);
-	_ASSERT(success);
+	for (int i = 0; i < mForces.size(); ++i)
+	{
+		Force& force = mForces.front();
 
-	mDirection = direction;
-	mTarget.isSet = false;
+		sf::Vector2f direction = force.direction;
+		Utils::Normalize(direction);
+		float strength = force.force;
+
+		mVelocity += direction * strength * fixedDt;
+	}
+
+	sf::Vector2f translation = mVelocity * fixedDt;
+
+	mShape.move(translation);
+
+	float top = GetY(0.f);
+	std::cout << top << std::endl;
+	if (top < 0.f)
+		TryBounce({ 0, -1 }, 0.5f);
+
+	float bottom = GetY(1.f);
+	if (bottom > GetWindowHeight())
+		TryBounce({ 0, 1 }, 0.5f);
+
+	float left = GetX(0.f);
+	if (left < 0)
+		TryBounce({ -1, 0 }, 0.5f);
+
+	float right = GetX(1.f);
+	if (right > GetWindowWidth())
+		TryBounce({ 1, 0 }, 0.5f);
 }
 
 void Entity::Update()
 {
-	float dt = GetDeltaTime();
-	float distance = dt * mSpeed;
-	sf::Vector2f translation = distance * mDirection;
-	mShape.move(translation);
-
-	if (mTarget.isSet)
-	{
-		sf::Vector2f position = GetPosition(0.5f, 0.5f);
-		sf::Vector2f target = mTarget.position;
-
-		Debug::DrawLine(position, target, sf::Color::Cyan);
-		Debug::DrawCircle(target, 5.f, sf::Color::Magenta);
-
-		mTarget.distance -= distance;
-
-		if (mTarget.distance <= 0.f)
-		{
-			SetPosition(mTarget.position, 0.5f, 0.5f);
-			mDirection = { 0, 0 };
-			mTarget.isSet = false;
-		}
-	}
-
 	OnUpdate();
 }
 
@@ -197,4 +180,19 @@ Scene* Entity::GetScene() const
 float Entity::GetDeltaTime() const
 {
 	return GameManager::Get()->GetDeltaTime();
+}
+
+float Entity::GetFixedDeltaTime() const
+{
+	return GameManager::Get()->GetFixedDeltaTime();
+}
+
+int Entity::GetWindowWidth() const
+{
+	return GetScene()->GetWindowWidth();
+}
+
+int Entity::GetWindowHeight() const
+{
+	return GetScene()->GetWindowHeight();
 }

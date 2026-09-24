@@ -12,6 +12,7 @@ GameManager::GameManager()
 {
 	mpWindow = nullptr;
 	mDeltaTime = 0.0f;
+	mFixedDeltaTime = DEFAULT_FIXED_DT;
 	mpScene = nullptr;
 	mWindowWidth = -1;
 	mWindowHeight = -1;
@@ -110,30 +111,13 @@ void GameManager::Update()
         it = mEntities.erase(it);
     }
 
-    //Collision
-    for (auto it1 = mEntities.begin(); it1 != mEntities.end(); ++it1)
-    {
-		Entity* e1 = *it1;
-		if (e1->mCollisionType == Entity::CollisionType::Ignore)
-			continue;
-
-        auto it2 = it1;
-        ++it2;
-        for (; it2 != mEntities.end(); ++it2)
-        {
-            Entity* e2 = *it2;
-			if (e2->mCollisionType == Entity::CollisionType::Ignore)
-				continue;
-
-            if (e1->IsColliding(e2))
-            {
-				e1->CollisionReaction(e2);
-
-				e1->OnCollision(e2);
-				e2->OnCollision(e1);
-            }
-        }
-    }
+	//Fixed Update
+	mAccumulatedDeltaTime += mDeltaTime;
+	while (mAccumulatedDeltaTime >= mFixedDeltaTime) 
+	{
+		FixedUpdate();
+		mAccumulatedDeltaTime -= mFixedDeltaTime;
+	}
 
 	for (auto it = mEntitiesToDestroy.begin(); it != mEntitiesToDestroy.end(); ++it) 
 	{
@@ -148,6 +132,35 @@ void GameManager::Update()
 	}
 
 	mEntitiesToAdd.clear();
+}
+
+void GameManager::FixedUpdate() 
+{
+	//Fixed Update
+	for (auto it = mEntities.begin(); it != mEntities.end(); ++it )
+	{
+		Entity* entity = *it;
+		entity->FixedUpdate();
+	}
+
+	//Collision
+	for (auto it1 = mEntities.begin(); it1 != mEntities.end(); ++it1)
+	{
+		Entity* e1 = *it1;
+
+		auto it2 = it1;
+		++it2;
+		for (; it2 != mEntities.end(); ++it2)
+		{
+			Entity* e2 = *it2;
+
+			if (e1->IsColliding(e2))
+			{
+				e1->OnCollision(e2);
+				e2->OnCollision(e1);
+			}
+		}
+	}
 }
 
 void GameManager::Draw()

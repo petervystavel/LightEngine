@@ -9,6 +9,8 @@ class Entity;
 class Scene;
 class Debug;
 
+#define DEFAULT_FIXED_DT 1.f / 60.f
+
 namespace sf 
 {
 	class RenderWindow;
@@ -27,6 +29,8 @@ class GameManager
 	Scene* mpScene;
 
 	float mDeltaTime;
+	float mFixedDeltaTime;
+	float mAccumulatedDeltaTime;
 
 	int mWindowWidth;
 	int mWindowHeight;
@@ -40,9 +44,11 @@ private:
 	
 	void HandleInput();
 	void Update();
+	void FixedUpdate();
 	void Draw();
 
 	void SetDeltaTime(float deltaTime) { mDeltaTime = deltaTime; }
+	void SetFixedDeltaTime(float fixedDeltaTime) { mFixedDeltaTime = fixedDeltaTime; }
 
 	sf::RenderWindow* GetWindow() const { return mpWindow; }
 
@@ -56,6 +62,7 @@ public:
 	void LaunchScene();
 
 	float GetDeltaTime() const { return mDeltaTime; }
+	float GetFixedDeltaTime() const { return mFixedDeltaTime; }
 	Scene* GetScene() const { return mpScene; }
 	sf::Font& GetFont() { return mFont; };
 
