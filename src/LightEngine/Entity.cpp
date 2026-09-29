@@ -70,13 +70,16 @@ void Entity::AddImpulse(sf::Vector2f velocity)
 	mVelocity += velocity;
 }
 
-void Entity::TryBounce(sf::Vector2f normal, float restitution)
+void Entity::TryBounceOnPlane(sf::Vector2f planeNormal, float restitution)
 {
-	float dotProduct = Utils::Dot(mVelocity, normal);
+	sf::Vector2f penetrationDir = -planeNormal;
+
+	float dotProduct = Utils::Dot(mVelocity, penetrationDir);
+
 	if (dotProduct <= 0)
 		return;
 
-	Bounce(normal, restitution);
+	Bounce(penetrationDir, restitution);
 }
 
 void Entity::Bounce(sf::Vector2f normal, float restitution)
@@ -150,21 +153,20 @@ void Entity::FixedUpdate()
 	mShape.move(translation);
 
 	float top = GetY(0.f);
-	std::cout << top << std::endl;
 	if (top < 0.f)
-		TryBounce({ 0, -1 }, 0.5f);
+		TryBounceOnPlane({ 0, 1 }, 0.5f);
 
 	float bottom = GetY(1.f);
 	if (bottom > GetWindowHeight())
-		TryBounce({ 0, 1 }, 0.5f);
+		TryBounceOnPlane({ 0, -1 }, 0.5f);
 
 	float left = GetX(0.f);
 	if (left < 0)
-		TryBounce({ -1, 0 }, 0.5f);
+		TryBounceOnPlane({ 1, 0 }, 0.5f);
 
 	float right = GetX(1.f);
 	if (right > GetWindowWidth())
-		TryBounce({ 1, 0 }, 0.5f);
+		TryBounceOnPlane({ -1, 0 }, 0.5f);
 }
 
 void Entity::Update()
