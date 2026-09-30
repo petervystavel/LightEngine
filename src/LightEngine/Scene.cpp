@@ -19,12 +19,9 @@ float Scene::GetDeltaTime() const
 	return mpGameManager->mDeltaTime;
 }
 
-sf::Vector2i Scene::GetMousePosition() const
+sf::Vector2f Scene::GetMousePosition() const
 {
 	sf::Vector2i mousePos = sf::Mouse::getPosition(*mpGameManager->mpWindow);
 
-	int x = mousePos.x;
-	int y = mousePos.y;
-
-	return mousePos;
+	return {(float)mousePos.x, (float)mousePos.y};
 }

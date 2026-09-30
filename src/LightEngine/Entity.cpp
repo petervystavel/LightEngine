@@ -70,26 +70,47 @@ void Entity::AddImpulse(sf::Vector2f velocity)
 	mVelocity += velocity;
 }
 
-void Entity::TryBounceOnPlane(sf::Vector2f planeNormal, float restitution)
+void Entity::CollisionReaction(Entity* collidedWith)
 {
-	sf::Vector2f penetrationDir = -planeNormal;
+	sf::Vector2 normal = Utils::GetTranslation(GetPosition(), collidedWith->GetPosition());
+	Utils::Normalize(normal);
 
-	float dotProduct = Utils::Dot(mVelocity, penetrationDir);
-
-	if (dotProduct <= 0)
+	sf::Vector2 relativeVelocity = mVelocity - collidedWith->mVelocity;
+	if (Utils::Dot(relativeVelocity, normal) <= 0)
 		return;
 
-	Bounce(penetrationDir, restitution);
+	float c1dot = Utils::Dot(mVelocity, normal);
+	sf::Vector2f c1v1 = normal * c1dot;
+	sf::Vector2f c1v2 = mVelocity - c1v1;
+
+	float c2dot = Utils::Dot(collidedWith->mVelocity, -normal);
+	sf::Vector2f c2v1 = -normal * c2dot;
+	sf::Vector2f c2v2 = collidedWith->mVelocity - c2v1;
+
+	mNewVelocity = (c2v1 + c1v2) * 1.5f;
+	collidedWith->mNewVelocity = (c1v1 + c2v2) * 1.5f;
+}
+
+void Entity::TryBounceOnPlane(sf::Vector2f planeNormal, float restitution)
+{
+	sf::Vector2f normal = -planeNormal;
+
+	float dot = Utils::Dot(mVelocity, normal);
+
+	if (dot <= 0)
+		return;
+
+	Bounce(normal, restitution);
 }
 
 void Entity::Bounce(sf::Vector2f normal, float restitution)
 {
-	float dotProduct = Utils::Dot(mVelocity, normal);
-	sf::Vector2f v1 = normal * dotProduct;
+	float dot = Utils::Dot(mVelocity, normal);
+	sf::Vector2f v1 = normal * dot;
 	sf::Vector2f v2 = mVelocity - v1;
 	v1 *= -1.f;
 
-	mVelocity = (v1 + v2) * restitution;
+	mNewVelocity = (v1 + v2) * restitution;
 }
 
 void Entity::SetPosition(sf::Vector2f newPosition, float ratioX, float ratioY)
@@ -147,6 +168,8 @@ void Entity::FixedUpdate()
 
 		mVelocity += direction * strength * fixedDt;
 	}
+
+	mNewVelocity = mVelocity;
 
 	sf::Vector2f translation = mVelocity * fixedDt;
 

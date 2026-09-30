@@ -7,12 +7,6 @@
 
 void SampleScene::OnInitialize()
 {
-	//pEntity1 = CreateEntity<Entity>(100, sf::Color::Red);
-	//pEntity1->SetPosition({ 100.f, 100.f });
-
-	pEntity2 = CreateEntity<Entity>(50, sf::Color::Green);
-	pEntity2->SetPosition({ 500.f, 500.f });
-
 	pEntitySelected = nullptr;
 }
 
@@ -21,21 +15,29 @@ void SampleScene::OnEvent(const sf::Event& event)
 	if (event.type != sf::Event::EventType::MouseButtonPressed)
 		return;
 
-	sf::Vector2i mousePos = GetMousePosition();
+	sf::Vector2f mousePos = GetMousePosition();
 
 	if (event.mouseButton.button == sf::Mouse::Button::Right)
 	{
-		if (pEntitySelected != nullptr ) 
-		{
-			pEntitySelected->AddImpulse(mVelocity);
-			pEntitySelected = nullptr;
-		}
+		Entity* pEntity = CreateEntity<Entity>(50, sf::Color::Green);
+		pEntity->SetPosition({ mousePos.x, mousePos.y });
+		m_pEntities.push_back(pEntity);
 	}
 
 	if (event.mouseButton.button == sf::Mouse::Button::Left)
 	{
-		TrySetSelectedEntity(pEntity1, mousePos.x, mousePos.y);
-		TrySetSelectedEntity(pEntity2, mousePos.x, mousePos.y);
+		if (pEntitySelected == nullptr)
+		{
+			for (int i = 0; i < m_pEntities.size(); ++i)
+			{
+				TrySetSelectedEntity(m_pEntities[i], mousePos.x, mousePos.y);
+			}
+		}
+		else 
+		{
+			pEntitySelected->AddImpulse(mVelocity);
+			pEntitySelected = nullptr;
+		}
 	}
 }
 

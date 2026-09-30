@@ -29,7 +29,7 @@ public:
 	int GetWindowWidth() const;
 	int GetWindowHeight() const;
 
-	sf::Vector2i GetMousePosition() const;
+	sf::Vector2f GetMousePosition() const;
 
 	friend GameManager;
 };

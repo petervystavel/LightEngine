@@ -25,6 +25,7 @@ class Entity
 protected:
     sf::CircleShape mShape;
     sf::Vector2f mVelocity;
+    sf::Vector2f mNewVelocity;
     std::list<Force> mForces;
 
     bool mToDestroy = false;
@@ -78,6 +79,7 @@ private:
     void FixedUpdate();
     void Update();
 	void Initialize(float radius, const sf::Color& color);
+    void CollisionReaction(Entity* collidedWith);
 
     friend class GameManager;
     friend Scene;

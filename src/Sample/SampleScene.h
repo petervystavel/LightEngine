@@ -4,8 +4,7 @@
 
 class SampleScene : public Scene
 {
-	Entity* pEntity1;
-	Entity* pEntity2;
+	std::vector<Entity*> m_pEntities;
 
 	Entity* pEntitySelected;
 
