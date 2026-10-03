@@ -1,7 +1,9 @@
 #pragma once
 
-#include <SFML/System/Vector2.hpp>
-#include <SFML/Graphics/CircleShape.hpp>
+//#include <SFML/System/Vector2.hpp>
+//#include <SFML/Graphics/CircleShape.hpp>
+
+#include "Utils.h"
 
 namespace sf 
 {
@@ -15,14 +17,14 @@ class Entity
 {
     struct Target 
     {
-		sf::Vector2i position;
+		Vector2i position;
         float distance;
 		bool isSet;
     };
 
 protected:
-    sf::CircleShape mShape;
-    sf::Vector2f mDirection;
+    Circle mShape;
+    Vector2f mDirection;
 	Target mTarget;
     float mSpeed = 0.f;
     bool mToDestroy = false;
@@ -36,12 +38,12 @@ public:
 	void SetDirection(float x, float y, float speed = -1.f);
 	void SetSpeed(float speed) { mSpeed = speed; }
 	void SetTag(int tag) { mTag = tag; }
-	float GetRadius() const { return mShape.getRadius(); }
+	float GetRadius() const { return 0; /*mShape.getRadius();*/ }
 	void SetRigidBody(bool isRigitBody) { mRigidBody = isRigitBody; }
 	bool IsRigidBody() const { return mRigidBody; }
 
-    sf::Vector2f GetPosition(float ratioX = 0.5f, float ratioY = 0.5f) const;
-	sf::Shape* GetShape() { return &mShape; }
+    Vector2f GetPosition(float ratioX = 0.5f, float ratioY = 0.5f) const;
+	/*sf::Shape* GetShape() { return &mShape; }*/
 
 	bool IsTag(int tag) const { return mTag == tag; }
     bool IsColliding(Entity* other) const;

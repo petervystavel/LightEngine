@@ -1,0 +1,54 @@
+{
+    "projects": {
+        "09F135FD-31AB-291C-0589-61750DCD4D5E": {
+            "config-debug": {
+                "additionalDependencies": [],
+                "additionalIncludeDirectories": [],
+                "additionalLibraryDirectories": [],
+                "preprocessorDefinitions": []
+            },
+            "config-release": {
+                "additionalDependencies": [],
+                "additionalIncludeDirectories": [],
+                "additionalLibraryDirectories": [],
+                "preprocessorDefinitions": []
+            },
+            "dependencies": ["621806D6-0FB9-07AA-403D-6CBF7E3A77B7"],
+            "dependents": [],
+            "name": "Sample",
+            "property-lib": false,
+            "property-pch": false,
+            "property-vcpkg": false,
+            "property-window": false
+        },
+        "621806D6-0FB9-07AA-403D-6CBF7E3A77B7": {
+            "config-debug": {
+                "additionalDependencies": [],
+                "additionalIncludeDirectories": [],
+                "additionalLibraryDirectories": [],
+                "preprocessorDefinitions": []
+            },
+            "config-release": {
+                "additionalDependencies": [],
+                "additionalIncludeDirectories": [],
+                "additionalLibraryDirectories": [],
+                "preprocessorDefinitions": []
+            },
+            "dependencies": [],
+            "dependents": [],
+            "name": "LightEngine",
+            "property-lib": true,
+            "property-pch": false,
+            "property-vcpkg": false,
+            "property-window": false
+        }
+    },
+    "projects_name_to_guid": {
+        "LightEngine": "621806D6-0FB9-07AA-403D-6CBF7E3A77B7",
+        "Sample": "09F135FD-31AB-291C-0589-61750DCD4D5E"
+    },
+    "solution_guid": "09897670-78A6-6932-7C36-769D08BF3B47",
+    "solution_name": "LightEngine",
+    "startup_project": "",
+    "version": "2.0"
+}

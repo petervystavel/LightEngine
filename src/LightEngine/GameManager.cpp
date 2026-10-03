@@ -3,8 +3,8 @@
 #include "Entity.h"
 #include "Debug.h"
 
-#include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
+//#include <SFML/Graphics.hpp>
+//#include <SFML/Window.hpp>
 
 #include <iostream>
 
@@ -35,58 +35,58 @@ GameManager::~GameManager()
 	}
 }
 
-void GameManager::CreateWindow(unsigned int width, unsigned int height, const char* title, int fpsLimit, sf::Color clearColor)
-{
-	_ASSERT(mpWindow == nullptr);
-
-	mpWindow = new sf::RenderWindow(sf::VideoMode(width, height), title);
-	mpWindow->setFramerateLimit(fpsLimit);
-
-	mWindowWidth = width;
-	mWindowHeight = height;
-
-	mClearColor = clearColor;
-}
+//void GameManager::CreateWindow(unsigned int width, unsigned int height, const char* title, int fpsLimit, sf::Color clearColor)
+//{
+//	_ASSERT(mpWindow == nullptr);
+//
+//	mpWindow = new sf::RenderWindow(sf::VideoMode(width, height), title);
+//	mpWindow->setFramerateLimit(fpsLimit);
+//
+//	mWindowWidth = width;
+//	mWindowHeight = height;
+//
+//	mClearColor = clearColor;
+//}
 
 void GameManager::Run()
 {
-	if (mpWindow == nullptr) 
-	{
-		std::cout << "Window not created, creating default window" << std::endl;
-		CreateWindow(1280, 720, "Default window");
-	}
+	//if (mpWindow == nullptr) 
+	//{
+	//	std::cout << "Window not created, creating default window" << std::endl;
+	//	CreateWindow(1280, 720, "Default window");
+	//}
 
-	//#TODO : Load somewhere else
-	bool fontLoaded = mFont.loadFromFile("../../../res/Hack-Regular.ttf");
-	_ASSERT(fontLoaded);
+	////#TODO : Load somewhere else
+	//bool fontLoaded = mFont.loadFromFile("../../../res/Hack-Regular.ttf");
+	//_ASSERT(fontLoaded);
 
-	_ASSERT(mpScene != nullptr);
+	//_ASSERT(mpScene != nullptr);
 
-	sf::Clock clock;
-	while (mpWindow->isOpen())
-	{
-		SetDeltaTime(clock.restart().asSeconds());
+	//sf::Clock clock;
+	//while (mpWindow->isOpen())
+	//{
+	//	SetDeltaTime(clock.restart().asSeconds());
 
-		HandleInput();
+	//	HandleInput();
 
-		Update();
-		
-		Draw();
-	}
+	//	Update();
+	//	
+	//	Draw();
+	//}
 }
 
 void GameManager::HandleInput()
 {
-	sf::Event event;
-	while (mpWindow->pollEvent(event))
-	{
-		if (event.type == sf::Event::Closed)
-		{
-			mpWindow->close();
-		}
+	//sf::Event event;
+	//while (mpWindow->pollEvent(event))
+	//{
+	//	if (event.type == sf::Event::Closed)
+	//	{
+	//		mpWindow->close();
+	//	}
 
-		mpScene->OnEvent(event);
-	}
+	//	mpScene->OnEvent(event);
+	//}
 }
 
 void GameManager::Update()
@@ -148,14 +148,14 @@ void GameManager::Update()
 
 void GameManager::Draw()
 {
-	mpWindow->clear(mClearColor);
-	
-	for (Entity* entity : mEntities)
-	{
-		mpWindow->draw(*entity->GetShape());
-	}
-	
-	Debug::Get()->Draw(mpWindow);
+	//mpWindow->clear(mClearColor);
+	//
+	//for (Entity* entity : mEntities)
+	//{
+	//	mpWindow->draw(*entity->GetShape());
+	//}
+	//
+	//Debug::Get()->Draw(mpWindow);
 
-	mpWindow->display();
+	//mpWindow->display();
 }
