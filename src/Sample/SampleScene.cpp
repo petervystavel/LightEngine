@@ -19,8 +19,12 @@ void SampleScene::OnEvent(const sf::Event& event)
 
 	if (event.mouseButton.button == sf::Mouse::Button::Right)
 	{
+		sf::Vector2f circlePos = mousePos;
+		if (mCtrl) 
+			circlePos = mCtrlPosition;
+
 		Entity* pEntity = CreateEntity<Entity>(50, sf::Color::Green);
-		pEntity->SetPosition({ mousePos.x, mousePos.y });
+		pEntity->SetPosition({ circlePos.x, circlePos.y });
 		m_pEntities.push_back(pEntity);
 	}
 
@@ -85,13 +89,29 @@ void SampleScene::TryDrawLine()
 	mVelocity = translation * strength;
 }
 
+
+#include <iostream>
+
 void SampleScene::OnUpdate()
 {
+
 	if (pEntitySelected != nullptr)
 	{
 		sf::Vector2f position = pEntitySelected->GetPosition();
 		Debug::DrawCircle(position, 10, sf::Color::Blue);
 
 		TryDrawLine();
+	}
+
+	mCtrl = sf::Keyboard::isKeyPressed(sf::Keyboard::LControl);
+	if ( mCtrl )
+	{
+		sf::Vector2f mousePos = GetMousePosition();
+		float x = (int)(mousePos.x / 100) * 100 + 50;
+		float y = (int)(mousePos.y / 100) * 100 + 50;
+
+		mCtrlPosition = { x, y };
+
+		Debug::DrawCircle({x, y}, 10, sf::Color::Blue);
 	}
 }

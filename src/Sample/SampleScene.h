@@ -12,6 +12,9 @@ class SampleScene : public Scene
 	const float mLineLengthMax = 200;
 	sf::Vector2f mVelocity;
 
+	bool mCtrl;
+	sf::Vector2f mCtrlPosition;
+
 private:
 	void TrySetSelectedEntity(Entity* pEntity, int x, int y);
 	void TryDrawLine();
