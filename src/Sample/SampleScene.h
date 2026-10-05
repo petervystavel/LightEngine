@@ -13,6 +13,7 @@ class SampleScene : public Scene
 	sf::Vector2f mVelocity;
 
 	bool mCtrl;
+	bool mAlt;
 	sf::Vector2f mCtrlPosition;
 
 private:

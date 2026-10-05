@@ -20,11 +20,22 @@ void SampleScene::OnEvent(const sf::Event& event)
 	if (event.mouseButton.button == sf::Mouse::Button::Right)
 	{
 		sf::Vector2f circlePos = mousePos;
-		if (mCtrl) 
+		if (mCtrl)
 			circlePos = mCtrlPosition;
 
-		Entity* pEntity = CreateEntity<Entity>(50, sf::Color::Green);
+		sf::Color color = sf::Color::Green;
+		float radius = 10;
+		float mass = 1;
+		if (mAlt)
+		{
+			color = sf::Color::Red;
+			radius = 100;
+			mass = 1000;
+		}
+
+		Entity* pEntity = CreateEntity<Entity>(radius, color);
 		pEntity->SetPosition({ circlePos.x, circlePos.y });
+		pEntity->SetMass(mass);
 		m_pEntities.push_back(pEntity);
 	}
 
@@ -37,7 +48,7 @@ void SampleScene::OnEvent(const sf::Event& event)
 				TrySetSelectedEntity(m_pEntities[i], mousePos.x, mousePos.y);
 			}
 		}
-		else 
+		else
 		{
 			pEntitySelected->AddImpulse(mVelocity);
 			pEntitySelected = nullptr;
@@ -104,7 +115,9 @@ void SampleScene::OnUpdate()
 	}
 
 	mCtrl = sf::Keyboard::isKeyPressed(sf::Keyboard::LControl);
-	if ( mCtrl )
+	mAlt = sf::Keyboard::isKeyPressed(sf::Keyboard::LAlt);
+
+	if (mCtrl)
 	{
 		sf::Vector2f mousePos = GetMousePosition();
 		float x = (int)(mousePos.x / 100) * 100 + 50;
@@ -112,6 +125,6 @@ void SampleScene::OnUpdate()
 
 		mCtrlPosition = { x, y };
 
-		Debug::DrawCircle({x, y}, 10, sf::Color::Blue);
+		Debug::DrawCircle({ x, y }, 10, sf::Color::Blue);
 	}
 }

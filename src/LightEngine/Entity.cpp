@@ -75,20 +75,31 @@ void Entity::CollisionReaction(Entity* collidedWith)
 	sf::Vector2 normal = Utils::GetTranslation(GetPosition(), collidedWith->GetPosition());
 	Utils::Normalize(normal);
 
+	//Check if the objects are moving toward each other
 	sf::Vector2 relativeVelocity = mVelocity - collidedWith->mVelocity;
-	if (Utils::Dot(relativeVelocity, normal) <= 0)
+	float relativeNormalSpeed = Utils::Dot(relativeVelocity, normal);
+	if (relativeNormalSpeed <= 0)
 		return;
 
-	float c1dot = Utils::Dot(mVelocity, normal);
-	sf::Vector2f c1v1 = normal * c1dot;
-	sf::Vector2f c1v2 = mVelocity - c1v1;
+	ContactVelocity cv1 = GetContactVelocity(normal);
+	ContactVelocity cv2 = collidedWith->GetContactVelocity(-normal);
 
-	float c2dot = Utils::Dot(collidedWith->mVelocity, -normal);
-	sf::Vector2f c2v1 = -normal * c2dot;
-	sf::Vector2f c2v2 = collidedWith->mVelocity - c2v1;
+	float m1 = mMass;
+	float m2 = collidedWith->mMass;
+	float totalMass = m1 + m2;
+	float ratioMass1 = m1 / totalMass;
+	float rationMass2 = m2 / totalMass;
 
-	mNewVelocity = (c2v1 + c1v2) * 1.5f;
-	collidedWith->mNewVelocity = (c1v1 + c2v2) * 1.5f;
+	sf::Vector2f deltaNormalVelocity1 = -normal * (rationMass2 * relativeNormalSpeed);
+	sf::Vector2f deltaNormalVelocity2 = normal * (ratioMass1 * relativeNormalSpeed);
+
+	float restitution = 0.5f;
+
+	sf::Vector2f newNormalVelocity1 = cv1.normal + deltaNormalVelocity1 + restitution * deltaNormalVelocity1;
+	sf::Vector2f newNormalVelocity2 = cv2.normal + deltaNormalVelocity2 + restitution * deltaNormalVelocity2;
+
+	mNewVelocity = (newNormalVelocity1 + cv1.tangent);
+	collidedWith->mNewVelocity = (newNormalVelocity2 + cv2.tangent);
 }
 
 void Entity::TryBounceOnPlane(sf::Vector2f planeNormal, float restitution)
@@ -111,6 +122,18 @@ void Entity::Bounce(sf::Vector2f normal, float restitution)
 	v1 *= -1.f;
 
 	mNewVelocity = (v1 + v2) * restitution;
+}
+
+ContactVelocity Entity::GetContactVelocity(sf::Vector2f normal) const
+{
+	ContactVelocity out;
+
+	float dot = Utils::Dot(mVelocity, normal);
+
+	out.normal = dot * normal;
+	out.tangent = mVelocity - out.normal;
+
+	return out;
 }
 
 void Entity::SetPosition(sf::Vector2f newPosition, float ratioX, float ratioY)
