@@ -19,6 +19,16 @@ namespace Utils
 		return false;
 	}
 
+	sf::Vector2f GetNormalized(sf::Vector2f vector)
+	{
+		float magnitude = GetDistance(vector);
+
+		vector.x /= magnitude;
+		vector.y /= magnitude;
+
+		return vector;
+	}
+
 	float Dot(sf::Vector2f v1, sf::Vector2f v2)
 	{
 		return v1.x * v2.x + v1.y * v2.y;
@@ -29,6 +39,13 @@ namespace Utils
 		sf::Vector2f translation = GetTranslation(p1, p2);
 
 		return GetDistance(translation);
+	}
+
+	float GetSqrDistance(sf::Vector2f p1, sf::Vector2f p2) 
+	{
+		sf::Vector2f translation = GetTranslation(p1, p2);
+
+		return translation.x * translation.x + translation.y * translation.y;
 	}
 
 	float GetDistance(sf::Vector2f translation)
@@ -47,5 +64,30 @@ namespace Utils
 		float det = v1.x * v2.y - v1.y * v2.x;
 
 		return std::atan2(det, dot) * 180 / 3.14159265;
+	}
+
+	RaycastInfo Raycast(Segment segment, Circle circle)
+	{
+		sf::Vector2f v1 = segment.p2 - segment.p1;
+		sf::Vector2f v2 = circle.center - segment.p1;
+
+		float ratio = Dot(v2, v1) / Dot(v1, v1);
+
+		if (ratio > 1.f)
+		{
+			float distance = GetDistance(circle.center, segment.p2);
+			if (distance > circle.radius)
+				return { false, {0.f,0.f} };
+		}
+
+		sf::Vector2f p = ratio * v1;
+		float sqrDist = GetSqrDistance(circle.center, p);
+		float sqrRadius = circle.radius * circle.radius;
+		float distToIntersection = std::sqrt(sqrRadius - sqrDist);
+
+		sf::Vector2f dir = -GetNormalized(v1);
+		sf::Vector2f intersection = segment.p2 + dir * distToIntersection;
+
+		return { true, intersection };
 	}
 }

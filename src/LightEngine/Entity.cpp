@@ -88,9 +88,9 @@ void Entity::CollisionReaction(Entity* collidedWith)
 	float m2 = collidedWith->mMass;
 	float totalMass = m1 + m2;
 	float ratioMass1 = m1 / totalMass;
-	float rationMass2 = m2 / totalMass;
+	float ratioMass2 = m2 / totalMass;
 
-	sf::Vector2f deltaNormalVelocity1 = -normal * (rationMass2 * relativeNormalSpeed);
+	sf::Vector2f deltaNormalVelocity1 = -normal * (ratioMass2 * relativeNormalSpeed);
 	sf::Vector2f deltaNormalVelocity2 = normal * (ratioMass1 * relativeNormalSpeed);
 
 	float restitution = 0.5f;
