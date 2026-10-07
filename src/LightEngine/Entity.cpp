@@ -47,7 +47,7 @@ bool Entity::IsInside(float x, float y) const
 }
 
 
-RaycastInfo Entity::Circlecast(Entity* entity, sf::Vector2f translation)
+RayCastInfo Entity::CircleCast(Entity* entity, sf::Vector2f translation)
 {
 	sf::Vector2f p1 = GetPosition();
 	sf::Vector2f p2 = p1 + translation;
@@ -58,7 +58,7 @@ RaycastInfo Entity::Circlecast(Entity* entity, sf::Vector2f translation)
 	Segment s = { p1, p2 };
 	Circle c = { center, radius };
 
-	return Utils::Raycast(s, c);
+	return Utils::RayCast(s, c);
 }
 
 void Entity::Destroy()
@@ -204,10 +204,9 @@ float Entity::GetY(float ratioY) const
 	return position.y;
 }
 
-void Entity::FixedUpdate()
+void Entity::PhysicUpdate()
 {
-	float fixedDt = GetFixedDeltaTime();
-
+	float dt = GetFixedDeltaTime();
 	for (int i = 0; i < mForces.size(); ++i)
 	{
 		Force& force = mForces.front();
@@ -216,13 +215,15 @@ void Entity::FixedUpdate()
 		Utils::Normalize(direction);
 		float strength = force.force;
 
-		mVelocity += direction * strength * fixedDt;
+		mVelocity += direction * strength * dt;
 	}
 
 	mNewVelocity = mVelocity;
+}
 
-	sf::Vector2f translation = mVelocity * fixedDt;
-
+void Entity::PhysicMove(float dt)
+{
+	sf::Vector2f translation = mVelocity * dt;
 	mShape.move(translation);
 }
 

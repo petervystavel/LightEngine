@@ -8,6 +8,17 @@
 
 namespace Utils
 {
+	bool IsZero(const sf::Vector2f& vector) 
+	{
+		if (vector.x != 0)
+			return false;
+
+		if (vector.y != 0)
+			return false;
+	
+		return true;
+	}
+
 	bool Normalize(sf::Vector2f& vector)
 	{
 		float magnitude = std::sqrt(vector.x * vector.x + vector.y * vector.y);
@@ -70,12 +81,12 @@ namespace Utils
 		return std::atan2(det, dot) * 180 / 3.14159265;
 	}
 
-	RaycastInfo Raycast(Segment segment, Circle circle)
+	RayCastInfo RayCast(Segment segment, Circle circle)
 	{
 		sf::Vector2f v1 = segment.p2 - segment.p1;
 		sf::Vector2f v2 = circle.center - segment.p1;
 
-		float ratio = Dot(v2, v1) / Dot(v1, v1);
+		float ratio = GetRatio(v2, v1);
 
 		if (ratio < 0)
 			return { false, {0.f,0.f} };
@@ -98,5 +109,10 @@ namespace Utils
 		sf::Vector2f intersection = p + dir * distToIntersection;
 
 		return { true, intersection };
+	}
+
+	float GetRatio(sf::Vector2f v1, sf::Vector2f v2) 
+	{
+		return Dot(v1, v2) / Dot(v2, v2);
 	}
 }

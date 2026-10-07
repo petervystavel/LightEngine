@@ -115,7 +115,11 @@ void GameManager::Update()
 	mAccumulatedDeltaTime += mDeltaTime;
 	while (mAccumulatedDeltaTime >= mFixedDeltaTime)
 	{
-		FixedUpdate();
+#ifdef CONTINUE_COLLISION
+		FixedUpdateCC();
+#else
+		FixedUpdateDC();
+#endif
 		mAccumulatedDeltaTime -= mFixedDeltaTime;
 	}
 
@@ -134,13 +138,14 @@ void GameManager::Update()
 	mEntitiesToAdd.clear();
 }
 
-void GameManager::FixedUpdate()
+void GameManager::FixedUpdateDC()
 {
 	//Fixed Update
 	for (auto it = mEntities.begin(); it != mEntities.end(); ++it)
 	{
 		Entity* entity = *it;
-		entity->FixedUpdate();
+		entity->PhysicUpdate();
+		entity->PhysicMove(mFixedDeltaTime);
 	}
 
 	//Collision
@@ -170,6 +175,78 @@ void GameManager::FixedUpdate()
 	{
 		Entity* entity = *it;
 		entity->mVelocity = entity->mNewVelocity;
+	}
+}
+
+void GameManager::FixedUpdateCC()
+{
+	float dt = mFixedDeltaTime;
+	float toiMin = mFixedDeltaTime;
+
+	for (auto it = mEntities.begin(); it != mEntities.end(); ++it)
+	{
+		Entity* entity = *it;
+		entity->PhysicUpdate();
+	}
+
+	while (true)
+	{
+		Entity* e1Collision = nullptr;
+		Entity* e2Collision = nullptr;
+
+		for (auto it1 = mEntities.begin(); it1 != mEntities.end(); ++it1)
+		{
+			Entity* e1 = *it1;
+
+			sf::Vector2f pos = e1->GetPosition();
+
+			auto it2 = it1;
+			++it2;
+			for (; it2 != mEntities.end(); ++it2)
+			{
+				Entity* e2 = *it2;
+
+				sf::Vector2f relativeTrans = (e1->mVelocity - e2->mVelocity) * dt;
+				if (Utils::IsZero(relativeTrans))
+					continue;
+
+				RayCastInfo info = e1->CircleCast(e2, relativeTrans);
+				if (info.hit == false)
+					continue;
+
+				sf::Vector2f transToImpact = info.point - pos;
+				float ratio = Utils::GetRatio(transToImpact, relativeTrans);
+
+				float toi = dt * ratio;
+				if (toi < toiMin) 
+				{
+					toiMin = toi;
+					e1Collision = e1;
+					e2Collision = e2;
+				}
+			}
+		}
+
+		for (auto it = mEntities.begin(); it != mEntities.end(); ++it)
+		{
+			Entity* entity = *it;
+			entity->PhysicMove(toiMin);
+		}
+
+		if (e1Collision != nullptr)
+		{
+			e1Collision->CollisionReaction(e2Collision);
+			e1Collision->mVelocity = e1Collision->mNewVelocity;
+			e2Collision->mVelocity = e2Collision->mNewVelocity;
+		}
+		
+		std::cout << dt << std::endl;
+
+		dt -= toiMin;
+		if (dt <= 0)
+			break;
+
+		toiMin = dt;
 	}
 }
 

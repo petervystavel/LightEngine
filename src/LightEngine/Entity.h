@@ -58,13 +58,13 @@ public:
 	float GetX(float ratioX = 0.5f) const;
 	float GetY(float ratioY = 0.5f) const;
 	sf::Shape* GetShape() { return &mShape; }
-	ContactVelocity GetContactVelocity(sf::Vector2f normal)const;
+	ContactVelocity GetContactVelocity(sf::Vector2f normal) const;
 
 	bool IsTag(int tag) const { return mTag == tag; }
 	bool IsColliding(Entity* other) const;
 	bool IsInside(float x, float y) const;
 
-	RaycastInfo Circlecast(Entity* entity, sf::Vector2f translation);
+	RayCastInfo CircleCast(Entity* entity, sf::Vector2f translation);
 
 	void Destroy();
 	bool ToDestroy() const { return mToDestroy; }
@@ -91,7 +91,8 @@ protected:
 	virtual void OnDestroy() {};
 
 private:
-	void FixedUpdate();
+	void PhysicUpdate();
+	void PhysicMove(float dt);
 	void Update();
 	void Initialize(float radius, const sf::Color& color);
 	void CollisionReaction(Entity* collidedWith);

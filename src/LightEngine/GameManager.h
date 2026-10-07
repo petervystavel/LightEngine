@@ -11,6 +11,8 @@ class Debug;
 
 #define DEFAULT_FIXED_DT 1.f / 60.f
 
+#define CONTINUE_COLLISION true
+
 namespace sf 
 {
 	class RenderWindow;
@@ -44,7 +46,8 @@ private:
 	
 	void HandleInput();
 	void Update();
-	void FixedUpdate();
+	void FixedUpdateCC();
+	void FixedUpdateDC();
 	void Draw();
 
 	void SetDeltaTime(float deltaTime) { mDeltaTime = deltaTime; }
