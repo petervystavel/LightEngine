@@ -1,6 +1,10 @@
 #include "Utils.h"
 
+#include "Debug.h"
+
 #include <cmath>
+
+#include <iostream>
 
 namespace Utils
 {
@@ -41,7 +45,7 @@ namespace Utils
 		return GetDistance(translation);
 	}
 
-	float GetSqrDistance(sf::Vector2f p1, sf::Vector2f p2) 
+	float GetSqrDistance(sf::Vector2f p1, sf::Vector2f p2)
 	{
 		sf::Vector2f translation = GetTranslation(p1, p2);
 
@@ -80,13 +84,21 @@ namespace Utils
 				return { false, {0.f,0.f} };
 		}
 
-		sf::Vector2f p = ratio * v1;
+		if (ratio < 0)
+			return { false, {0.f,0.f} };
+
+		sf::Vector2f p = segment.p1 + (ratio * v1);
+
+		float distance = GetDistance(circle.center, p);
+		if (distance > circle.radius)
+			return { false, {0.f,0.f} };
+
 		float sqrDist = GetSqrDistance(circle.center, p);
 		float sqrRadius = circle.radius * circle.radius;
 		float distToIntersection = std::sqrt(sqrRadius - sqrDist);
 
 		sf::Vector2f dir = -GetNormalized(v1);
-		sf::Vector2f intersection = segment.p2 + dir * distToIntersection;
+		sf::Vector2f intersection = p + dir * distToIntersection;
 
 		return { true, intersection };
 	}

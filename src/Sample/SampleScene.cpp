@@ -50,8 +50,8 @@ void SampleScene::OnEvent(const sf::Event& event)
 		}
 		else
 		{
-			pEntitySelected->AddImpulse(mVelocity);
-			pEntitySelected = nullptr;
+			//pEntitySelected->AddImpulse(mVelocity);
+			//pEntitySelected = nullptr;
 		}
 	}
 }
@@ -84,8 +84,8 @@ void SampleScene::TryDrawLine()
 	if (distance <= 0)
 		return;
 
-	if (distance > mLineLengthMax)
-		distance = mLineLengthMax;
+	//if (distance > mLineLengthMax)
+	//	distance = mLineLengthMax;
 
 	Utils::Normalize(translation);
 
@@ -105,13 +105,29 @@ void SampleScene::TryDrawLine()
 
 void SampleScene::OnUpdate()
 {
-
 	if (pEntitySelected != nullptr)
 	{
 		sf::Vector2f position = pEntitySelected->GetPosition();
 		Debug::DrawCircle(position, 10, sf::Color::Blue);
 
 		TryDrawLine();
+
+		sf::Vector2f mousePos = GetMousePosition();
+		sf::Vector2f center = pEntitySelected->GetPosition();
+
+		for (int i = 0; i < m_pEntities.size(); ++i)
+		{
+			if (m_pEntities[i] == pEntitySelected)
+				continue;
+
+			sf::Vector2f translation = mousePos - center;
+			RaycastInfo info = pEntitySelected->Raycast(m_pEntities[i], translation);
+
+			if (info.hit == false)
+				continue;
+
+			Debug::DrawCircle(info.point, pEntitySelected->GetRadius(), sf::Color::Blue);
+		}
 	}
 
 	mCtrl = sf::Keyboard::isKeyPressed(sf::Keyboard::LControl);

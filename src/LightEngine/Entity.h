@@ -4,6 +4,7 @@
 #include <SFML/Graphics/CircleShape.hpp>
 
 #include <list>
+#include "Utils.h"
 
 namespace sf
 {
@@ -62,6 +63,8 @@ public:
 	bool IsTag(int tag) const { return mTag == tag; }
 	bool IsColliding(Entity* other) const;
 	bool IsInside(float x, float y) const;
+
+	RaycastInfo Raycast(Entity* entity, sf::Vector2f translation);
 
 	void Destroy();
 	bool ToDestroy() const { return mToDestroy; }

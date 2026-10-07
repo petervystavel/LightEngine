@@ -46,6 +46,21 @@ bool Entity::IsInside(float x, float y) const
 	return (dx * dx + dy * dy) < (radius * radius);
 }
 
+
+RaycastInfo Entity::Raycast(Entity* entity, sf::Vector2f translation)
+{
+	sf::Vector2f p1 = GetPosition();
+	sf::Vector2f p2 = p1 + translation;
+
+	sf::Vector2f center = entity->GetPosition();
+	float radius = GetRadius() + entity->GetRadius();
+
+	Segment s = { p1, p2 };
+	Circle c = { center, radius };
+
+	return Utils::Raycast(s, c);
+}
+
 void Entity::Destroy()
 {
 	mToDestroy = true;
