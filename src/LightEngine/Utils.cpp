@@ -77,19 +77,16 @@ namespace Utils
 
 		float ratio = Dot(v2, v1) / Dot(v1, v1);
 
-		if (ratio > 1.f)
-		{
-			float distance = GetDistance(circle.center, segment.p2);
-			if (distance > circle.radius)
-				return { false, {0.f,0.f} };
-		}
-
 		if (ratio < 0)
 			return { false, {0.f,0.f} };
 
 		sf::Vector2f p = segment.p1 + (ratio * v1);
 
-		float distance = GetDistance(circle.center, p);
+		sf::Vector2f max = p;
+		if (ratio > 1.f)
+			max = segment.p2;
+
+		float distance = GetDistance(circle.center, max);
 		if (distance > circle.radius)
 			return { false, {0.f,0.f} };
 

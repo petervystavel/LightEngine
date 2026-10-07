@@ -47,7 +47,7 @@ bool Entity::IsInside(float x, float y) const
 }
 
 
-RaycastInfo Entity::Raycast(Entity* entity, sf::Vector2f translation)
+RaycastInfo Entity::Circlecast(Entity* entity, sf::Vector2f translation)
 {
 	sf::Vector2f p1 = GetPosition();
 	sf::Vector2f p2 = p1 + translation;
@@ -117,16 +117,28 @@ void Entity::CollisionReaction(Entity* collidedWith)
 	collidedWith->mNewVelocity = (newNormalVelocity2 + cv2.tangent);
 }
 
-void Entity::TryBounceOnPlane(sf::Vector2f planeNormal, float restitution)
+void Entity::TryBounceOnEdges()
 {
-	sf::Vector2f normal = -planeNormal;
+	auto TryBounceOnEdge = [](Entity* entity, sf::Vector2f normal)
+		{
+			float dot = Utils::Dot(entity->mVelocity, normal);
+			if (dot <= 0)
+				return;
 
-	float dot = Utils::Dot(mVelocity, normal);
+			entity->Bounce(normal, 0.5f);
+		};
 
-	if (dot <= 0)
-		return;
+	if (GetY(0.f) < 0.f)
+		TryBounceOnEdge(this, { 0, -1 });
 
-	Bounce(normal, restitution);
+	if (GetY(1.f) > GetWindowHeight())
+		TryBounceOnEdge(this, { 0, 1 });
+
+	if (GetX(0.f) < 0)
+		TryBounceOnEdge(this, { -1, 0 });
+
+	if (GetX(1.f) > GetWindowWidth())
+		TryBounceOnEdge(this, { 1, 0 });
 }
 
 void Entity::Bounce(sf::Vector2f normal, float restitution)
@@ -212,22 +224,6 @@ void Entity::FixedUpdate()
 	sf::Vector2f translation = mVelocity * fixedDt;
 
 	mShape.move(translation);
-
-	float top = GetY(0.f);
-	if (top < 0.f)
-		TryBounceOnPlane({ 0, 1 }, 0.5f);
-
-	float bottom = GetY(1.f);
-	if (bottom > GetWindowHeight())
-		TryBounceOnPlane({ 0, -1 }, 0.5f);
-
-	float left = GetX(0.f);
-	if (left < 0)
-		TryBounceOnPlane({ 1, 0 }, 0.5f);
-
-	float right = GetX(1.f);
-	if (right > GetWindowWidth())
-		TryBounceOnPlane({ -1, 0 }, 0.5f);
 }
 
 void Entity::Update()

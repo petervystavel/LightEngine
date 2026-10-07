@@ -46,7 +46,7 @@ public:
 	void AddForce(sf::Vector2f direction, float strength);
 	void AddImpulse(sf::Vector2f direction, float impulse);
 	void AddImpulse(sf::Vector2f velocity);
-	void TryBounceOnPlane(sf::Vector2f normal, float restitution = 1.f);
+	void TryBounceOnEdges();
 	void Bounce(sf::Vector2f normal, float restitution = 1.f);
 
 	void SetPosition(sf::Vector2f position, float ratioX = 0.5f, float ratioY = 0.5f);
@@ -64,7 +64,7 @@ public:
 	bool IsColliding(Entity* other) const;
 	bool IsInside(float x, float y) const;
 
-	RaycastInfo Raycast(Entity* entity, sf::Vector2f translation);
+	RaycastInfo Circlecast(Entity* entity, sf::Vector2f translation);
 
 	void Destroy();
 	bool ToDestroy() const { return mToDestroy; }

@@ -162,6 +162,8 @@ void GameManager::FixedUpdate()
 				e2->OnCollision(e1);
 			}
 		}
+
+		e1->TryBounceOnEdges();
 	}
 
 	for (auto it = mEntities.begin(); it != mEntities.end(); ++it)
