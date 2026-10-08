@@ -31,6 +31,8 @@ public:
 
 	sf::Vector2f GetMousePosition() const;
 
+	void AddEdge(sf::Vector2f p1, sf::Vector2f p2, sf::Vector2f normal);
+
 	friend GameManager;
 };
 

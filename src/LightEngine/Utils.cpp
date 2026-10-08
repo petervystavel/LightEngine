@@ -81,7 +81,7 @@ namespace Utils
 		return std::atan2(det, dot) * 180 / 3.14159265;
 	}
 
-	RayCastInfo RayCast(Segment segment, Circle circle)
+	IntersectionInfo RayCast(Segment segment, Circle circle)
 	{
 		sf::Vector2f v1 = segment.p2 - segment.p1;
 		sf::Vector2f v2 = circle.center - segment.p1;
@@ -110,6 +110,37 @@ namespace Utils
 
 		return { true, intersection };
 	}
+
+
+	float Cross(sf::Vector2f a, sf::Vector2f b)
+	{
+		return a.x * b.y - a.y * b.x;
+	}
+
+	IntersectionInfo Intersect(Segment s1, Segment s2)
+	{
+		sf::Vector2f r = s1.p2 - s1.p1;
+		sf::Vector2f s = s2.p2 - s2.p1;
+
+		float denominator = Cross(r, s);
+
+		// Segments parallèles ou colinéaires
+		if (std::abs(denominator) < 0.000001f)
+			return { false, {} };
+
+		sf::Vector2f delta = s2.p1 - s1.p1;
+
+		float t = Cross(delta, s) / denominator;
+		float u = Cross(delta, r) / denominator;
+
+		// Intersection en dehors des segments
+		if (t < 0.0f || t > 1.0f ||
+			u < 0.0f || u > 1.0f)
+			return { false, {} };
+
+		return { true, s1.p1 + r * t };
+	}
+
 
 	float GetRatio(sf::Vector2f v1, sf::Vector2f v2) 
 	{

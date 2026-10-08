@@ -64,7 +64,8 @@ public:
 	bool IsColliding(Entity* other) const;
 	bool IsInside(float x, float y) const;
 
-	RayCastInfo CircleCast(Entity* entity, sf::Vector2f translation);
+	IntersectionInfo CircleCast(Entity* entity, sf::Vector2f translation);
+	IntersectionInfo EdgeCast(Edge edge, sf::Vector2f translation);
 
 	void Destroy();
 	bool ToDestroy() const { return mToDestroy; }

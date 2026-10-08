@@ -8,6 +8,16 @@
 void SampleScene::OnInitialize()
 {
 	pEntitySelected = nullptr;
+
+	float top = 1;
+	float left = 1;
+	float bottom = GetWindowHeight() - 1;
+	float right = GetWindowWidth() - 1;
+
+	AddEdge({ left, top }, { right, top }, { 0, 1 });
+	AddEdge({ right, top }, { right, bottom }, { -1, 0 });
+	AddEdge({ right, bottom }, { left, bottom }, { 0, -1 });
+	AddEdge({ left, bottom }, { left, top }, { 1, 0 });
 }
 
 void SampleScene::OnEvent(const sf::Event& event)
@@ -84,8 +94,8 @@ void SampleScene::TryDrawLine()
 	if (distance <= 0)
 		return;
 
-	if (distance > mLineLengthMax)
-		distance = mLineLengthMax;
+	//if (distance > mLineLengthMax)
+	//	distance = mLineLengthMax;
 
 	Utils::Normalize(translation);
 
@@ -112,9 +122,11 @@ void SampleScene::OnUpdate()
 
 		TryDrawLine();
 
-		//sf::Vector2f mousePos = GetMousePosition();
-		//sf::Vector2f center = pEntitySelected->GetPosition();
+		sf::Vector2f mousePos = GetMousePosition();
+		sf::Vector2f center = pEntitySelected->GetPosition();
 
+		sf::Vector2f translation = mousePos - center;
+		
 		//for (int i = 0; i < m_pEntities.size(); ++i)
 		//{
 		//	if (m_pEntities[i] == pEntitySelected)
@@ -128,6 +140,15 @@ void SampleScene::OnUpdate()
 
 		//	Debug::DrawCircle(info.point, pEntitySelected->GetRadius(), sf::Color::Blue);
 		//}
+
+		for (int i = 0; i < GameManager::Get()->mEdges.size(); ++i) 
+		{
+			IntersectionInfo info = pEntitySelected->EdgeCast(GameManager::Get()->mEdges[i], translation);
+			if (info.hit == false)
+				continue;
+
+			Debug::DrawCircle(info.point, pEntitySelected->GetRadius(), sf::Color::Blue);
+		}
 	}
 
 	mCtrl = sf::Keyboard::isKeyPressed(sf::Keyboard::LControl);

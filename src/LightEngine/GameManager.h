@@ -5,13 +5,15 @@
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Text.hpp>
 
+#include "Utils.h"
+
 class Entity;
 class Scene;
 class Debug;
 
-#define DEFAULT_FIXED_DT 1.f / 60.f
+#define DEFAULT_FIXED_DT 1.f / 120.f
 
-#define CONTINUE_COLLISION true
+#define CCD true
 
 namespace sf 
 {
@@ -24,6 +26,8 @@ class GameManager
 	std::list<Entity*> mEntities;
 	std::list<Entity*> mEntitiesToDestroy;
 	std::list<Entity*> mEntitiesToAdd;
+
+public:std::vector<Edge> mEdges;
 
 	sf::RenderWindow* mpWindow;
 	sf::Font mFont;

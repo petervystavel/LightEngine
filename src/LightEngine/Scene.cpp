@@ -25,3 +25,9 @@ sf::Vector2f Scene::GetMousePosition() const
 
 	return {(float)mousePos.x, (float)mousePos.y};
 }
+
+void Scene::AddEdge(sf::Vector2f p1, sf::Vector2f p2, sf::Vector2f normal)
+{
+	Edge edge = { {p1, p2}, normal };
+	mpGameManager->mEdges.push_back(edge);
+}

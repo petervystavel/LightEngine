@@ -47,7 +47,7 @@ bool Entity::IsInside(float x, float y) const
 }
 
 
-RayCastInfo Entity::CircleCast(Entity* entity, sf::Vector2f translation)
+IntersectionInfo Entity::CircleCast(Entity* entity, sf::Vector2f translation)
 {
 	sf::Vector2f p1 = GetPosition();
 	sf::Vector2f p2 = p1 + translation;
@@ -59,6 +59,23 @@ RayCastInfo Entity::CircleCast(Entity* entity, sf::Vector2f translation)
 	Circle c = { center, radius };
 
 	return Utils::RayCast(s, c);
+}
+
+IntersectionInfo Entity::EdgeCast(Edge edge, sf::Vector2f translation)
+{
+	float dot = Utils::Dot(translation, -edge.normal);
+	if (dot <= 0)
+		return { false,{} };
+
+	Segment s1;
+	s1.p1 = edge.s.p1 + edge.normal * GetRadius();
+	s1.p2 = edge.s.p2 + edge.normal * GetRadius();
+
+	Segment s2;
+	s2.p1 = GetPosition();
+	s2.p2 = s2.p1 + translation;
+
+	return Utils::Intersect(s1, s2);
 }
 
 void Entity::Destroy()
@@ -143,6 +160,11 @@ void Entity::TryBounceOnEdges()
 
 void Entity::Bounce(sf::Vector2f normal, float restitution)
 {
+	//Check if the objects are moving toward each other
+	float relativeNormalSpeed = Utils::Dot(mVelocity, normal);
+	if (relativeNormalSpeed <= 0)
+		return;
+
 	float dot = Utils::Dot(mVelocity, normal);
 	sf::Vector2f v1 = normal * dot;
 	sf::Vector2f v2 = mVelocity - v1;

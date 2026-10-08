@@ -115,7 +115,7 @@ void GameManager::Update()
 	mAccumulatedDeltaTime += mDeltaTime;
 	while (mAccumulatedDeltaTime >= mFixedDeltaTime)
 	{
-#ifdef CONTINUE_COLLISION
+#if CCD
 		FixedUpdateCC();
 #else
 		FixedUpdateDC();
@@ -193,6 +193,7 @@ void GameManager::FixedUpdateCC()
 	{
 		Entity* e1Collision = nullptr;
 		Entity* e2Collision = nullptr;
+		Edge* edge = nullptr;
 
 		for (auto it1 = mEntities.begin(); it1 != mEntities.end(); ++it1)
 		{
@@ -210,7 +211,7 @@ void GameManager::FixedUpdateCC()
 				if (Utils::IsZero(relativeTrans))
 					continue;
 
-				RayCastInfo info = e1->CircleCast(e2, relativeTrans);
+				IntersectionInfo info = e1->CircleCast(e2, relativeTrans);
 				if (info.hit == false)
 					continue;
 
@@ -218,11 +219,36 @@ void GameManager::FixedUpdateCC()
 				float ratio = Utils::GetRatio(transToImpact, relativeTrans);
 
 				float toi = dt * ratio;
-				if (toi < toiMin) 
+				if (toi <= toiMin) 
 				{
 					toiMin = toi;
 					e1Collision = e1;
 					e2Collision = e2;
+					edge = nullptr;
+				}
+			}
+
+			if (Utils::IsZero(e1->mVelocity))
+				continue;
+
+			sf::Vector2f trans = e1->mVelocity * dt;
+			for (int i = 0; i < mEdges.size(); ++i) 
+			{
+				IntersectionInfo info = e1->EdgeCast(mEdges[i], trans);
+				if (info.hit == false)
+					continue;
+
+				sf::Vector2f transToImpact = info.point - pos;
+				float ratio = Utils::GetRatio(transToImpact, trans);
+				if (ratio <= 0)
+					continue;
+
+				float toi = dt * ratio;
+				if (toi <= toiMin)
+				{
+					toiMin = toi;
+					e1Collision = e1;
+					edge = &mEdges[i];
 				}
 			}
 		}
@@ -235,13 +261,19 @@ void GameManager::FixedUpdateCC()
 
 		if (e1Collision != nullptr)
 		{
-			e1Collision->CollisionReaction(e2Collision);
-			e1Collision->mVelocity = e1Collision->mNewVelocity;
-			e2Collision->mVelocity = e2Collision->mNewVelocity;
+			if (edge != nullptr) 
+			{
+				e1Collision->Bounce(-edge->normal, 1.f);
+				e1Collision->mVelocity = e1Collision->mNewVelocity;
+			}
+			else 
+			{
+				e1Collision->CollisionReaction(e2Collision);
+				e1Collision->mVelocity = e1Collision->mNewVelocity;
+				e2Collision->mVelocity = e2Collision->mNewVelocity;
+			}
 		}
 		
-		std::cout << dt << std::endl;
-
 		dt -= toiMin;
 		if (dt <= 0)
 			break;
@@ -259,6 +291,14 @@ void GameManager::Draw()
 		mpWindow->draw(*entity->GetShape());
 	}
 
+	for (int i = 0; i < mEdges.size(); ++i) 
+	{
+		sf::Vector2f p1 = mEdges[i].s.p1;
+		sf::Vector2f p2 = mEdges[i].s.p2;
+
+		Debug::DrawLine(p1, p2, sf::Color::White);
+	}
+	
 	Debug::Get()->Draw(mpWindow);
 
 	mpWindow->display();
