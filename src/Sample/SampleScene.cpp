@@ -4,8 +4,8 @@
 
 //#include "Debug.h"
 
-void SampleScene::OnInitialize()
-{
+//void SampleScene::OnInitialize()
+//{
 	//pEntity1 = CreateEntity<DummyEntity>(100, sf::Color::Red);
 	//pEntity1->SetPosition(100, 100);
 	//pEntity1->SetRigidBody(true);
@@ -15,7 +15,7 @@ void SampleScene::OnInitialize()
 	//pEntity2->SetRigidBody(true);
 
 	//pEntitySelected = nullptr;
-}
+//}
 
 //void SampleScene::OnEvent(const sf::Event& event)
 //{
@@ -37,19 +37,19 @@ void SampleScene::OnInitialize()
 //	}
 //}
 
-void SampleScene::TrySetSelectedEntity(DummyEntity* pEntity, int x, int y)
-{
+//void SampleScene::TrySetSelectedEntity(DummyEntity* pEntity, int x, int y)
+//{
 	//if (pEntity->IsInside(x, y) == false)
 	//	return;
 
 	//pEntitySelected = pEntity;
-}
+//}
 
-void SampleScene::OnUpdate()
-{
+//void SampleScene::OnUpdate()
+//{
 	//if(pEntitySelected != nullptr)
 	//{
 	//	sf::Vector2f position = pEntitySelected->GetPosition();
 	//	Debug::DrawCircle(position.x, position.y, 10, sf::Color::Blue);
 	//}
-}
+//}

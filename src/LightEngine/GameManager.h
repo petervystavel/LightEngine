@@ -1,19 +1,17 @@
 #pragma once
 
 #include <list>
+#include <type_traits>
+#include <cassert>
 
-//#include <SFML/Graphics/Color.hpp>
-//#include <SFML/Graphics/Text.hpp>
+#include "Utils.h"
 
 class Entity;
 class Scene;
 class Debug;
 
-namespace sf 
-{
-	class RenderWindow;
-	class Event;
-}
+struct SDL_Window;
+struct SDL_Renderer;
 
 class GameManager
 {
@@ -21,7 +19,10 @@ class GameManager
 	std::list<Entity*> mEntitiesToDestroy;
 	std::list<Entity*> mEntitiesToAdd;
 
-	sf::RenderWindow* mpWindow;
+	SDL_Window* mpWindow;
+	SDL_Renderer* mpRenderer;
+	int mFpsLimit;
+	Uint64 mFrameDurationNS;
 	//sf::Font mFont;
 
 	Scene* mpScene;
@@ -31,26 +32,27 @@ class GameManager
 	int mWindowWidth;
 	int mWindowHeight;
 
-	//Color mClearColor;
+	Color mClearColor;
 
 private:
 	GameManager();
 
 	void Run();
 	
-	void HandleInput();
+	bool Event();
 	void Update();
 	void Draw();
 
-	void SetDeltaTime(float deltaTime) { mDeltaTime = deltaTime; }
+	void SetDeltaTime(Uint64 deltaTimeNS) { mDeltaTime = static_cast<float>(deltaTimeNS) / 1000000000.f; }
 
-	sf::RenderWindow* GetWindow() const { return mpWindow; }
+	SDL_Window* GetWindow() const { return mpWindow; }
 
 public:
 	~GameManager();
 	static GameManager* Get();
 
-	//void CreateWindow(unsigned int width, unsigned int height, const char* title, int fpsLimit = 60, sf::Color clearColor = sf::Color::Black);
+	void CreateWindow(int width, int height, const char* title, int fpsLimit = 60, Color clearColor = { 0 });
+	SDL_Renderer* GetRenderer() const { return mpRenderer; }
 
 	template<typename T>
 	void LaunchScene();

@@ -2,9 +2,23 @@
     "projects": {
         "09F135FD-31AB-291C-0589-61750DCD4D5E": {
             "config-debug": {
-                "additionalDependencies": [],
-                "additionalIncludeDirectories": [],
-                "additionalLibraryDirectories": [],
+                "additionalDependencies": [
+                    "SDL3-static.lib", 
+                    "version.lib",
+                    "imm32.lib",
+                    "cfgmgr32.lib",
+                    "setupapi.lib",
+                    "winmm.lib",
+                    "gdi32.lib",
+                    "user32.lib",
+                    "shell32.lib",
+                    "ole32.lib",
+                    "oleaut32.lib",
+                    "advapi32.lib",
+                    "LightEngine.lib"
+                ],
+                "additionalIncludeDirectories": ["$(SolutionDir)../lib/SDL3/include"],
+                "additionalLibraryDirectories": ["$(SolutionDir)../lib/SDL3/lib/x64"],
                 "preprocessorDefinitions": []
             },
             "config-release": {
@@ -23,9 +37,22 @@
         },
         "621806D6-0FB9-07AA-403D-6CBF7E3A77B7": {
             "config-debug": {
-                "additionalDependencies": [],
-                "additionalIncludeDirectories": [],
-                "additionalLibraryDirectories": [],
+                "additionalDependencies": [
+                    "SDL3-static.lib", 
+                    "version.lib",
+                    "imm32.lib",
+                    "cfgmgr32.lib",
+                    "setupapi.lib",
+                    "winmm.lib",
+                    "gdi32.lib",
+                    "user32.lib",
+                    "shell32.lib",
+                    "ole32.lib",
+                    "oleaut32.lib",
+                    "advapi32.lib"
+                ],
+                "additionalIncludeDirectories": ["$(SolutionDir)../lib/SDL3/include"],
+                "additionalLibraryDirectories": ["$(SolutionDir)../lib/SDL3/lib/x64"],
                 "preprocessorDefinitions": []
             },
             "config-release": {

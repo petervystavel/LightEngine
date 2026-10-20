@@ -3,18 +3,19 @@
 #include "Entity.h"
 #include "Debug.h"
 
-//#include <SFML/Graphics.hpp>
-//#include <SFML/Window.hpp>
-
 #include <iostream>
+
+#include "SDL3/SDL.h"
 
 GameManager::GameManager()
 {
 	mpWindow = nullptr;
+	mpRenderer = nullptr;
 	mDeltaTime = 0.0f;
 	mpScene = nullptr;
 	mWindowWidth = -1;
 	mWindowHeight = -1;
+	mClearColor = { 0 };
 }
 
 GameManager* GameManager::Get()
@@ -26,67 +27,89 @@ GameManager* GameManager::Get()
 
 GameManager::~GameManager()
 {
-	delete mpWindow;
 	delete mpScene;
 
 	for (Entity* entity : mEntities)
 	{
 		delete entity;
 	}
+
+	SDL_DestroyRenderer(mpRenderer);
+	SDL_DestroyWindow(mpWindow);
+	SDL_Quit();
 }
 
-//void GameManager::CreateWindow(unsigned int width, unsigned int height, const char* title, int fpsLimit, sf::Color clearColor)
-//{
-//	_ASSERT(mpWindow == nullptr);
-//
-//	mpWindow = new sf::RenderWindow(sf::VideoMode(width, height), title);
-//	mpWindow->setFramerateLimit(fpsLimit);
-//
-//	mWindowWidth = width;
-//	mWindowHeight = height;
-//
-//	mClearColor = clearColor;
-//}
+void GameManager::CreateWindow(int width, int height, const char* title, int fpsLimit, Color clearColor)
+{
+	assert(mpWindow == nullptr);
+	if (mpWindow != nullptr)
+		return;
+
+	if (SDL_Init(SDL_INIT_VIDEO) == false)
+	{
+		SDL_Log("SDL initialization failed: %s", SDL_GetError());
+		return;
+	}
+
+	if (SDL_CreateWindowAndRenderer(title, width, height, 0, &mpWindow, &mpRenderer) == false)
+	{
+		SDL_Log("Window and renderer creation failed: %s", SDL_GetError());
+		SDL_DestroyRenderer(mpRenderer);
+		SDL_DestroyWindow(mpWindow);
+		mpRenderer = nullptr;
+		mpWindow = nullptr;
+		return;
+	}
+
+	mWindowWidth = width;
+	mWindowHeight = height;
+
+	mFpsLimit = fpsLimit;
+	mFrameDurationNS = 1000000000ULL / mFpsLimit;
+
+	mClearColor = clearColor;
+}
 
 void GameManager::Run()
 {
-	//if (mpWindow == nullptr) 
-	//{
-	//	std::cout << "Window not created, creating default window" << std::endl;
-	//	CreateWindow(1280, 720, "Default window");
-	//}
+	if (mpWindow == nullptr)
+	{
+		std::cout << "Window not created, creating default window" << std::endl;
+		CreateWindow(1280, 720, "Default window");
+	}
 
-	////#TODO : Load somewhere else
-	//bool fontLoaded = mFont.loadFromFile("../../../res/Hack-Regular.ttf");
-	//_ASSERT(fontLoaded);
+	if (mpWindow == nullptr || mpRenderer == nullptr || mpScene == nullptr)
+		return;
 
-	//_ASSERT(mpScene != nullptr);
+	Uint64 previousTime = SDL_GetTicksNS();
+	while (true)
+	{
+		const Uint64 frameStart = SDL_GetTicksNS();
+		SetDeltaTime(frameStart - previousTime);
+		previousTime = frameStart;
 
-	//sf::Clock clock;
-	//while (mpWindow->isOpen())
-	//{
-	//	SetDeltaTime(clock.restart().asSeconds());
+		bool quit = Event();
+		if (quit == false)
+			break;
 
-	//	HandleInput();
+		Update();
 
-	//	Update();
-	//	
-	//	Draw();
-	//}
+		Draw();
+
+		const Uint64 elapsed = SDL_GetTicksNS() - frameStart;
+		if (elapsed < mFrameDurationNS)
+			SDL_DelayNS(mFrameDurationNS - elapsed);
+	}
 }
 
-void GameManager::HandleInput()
+bool GameManager::Event()
 {
-	//sf::Event event;
-	//while (mpWindow->pollEvent(event))
-	//{
-	//	if (event.type == sf::Event::Closed)
-	//	{
-	//		mpWindow->close();
-	//	}
-
-	//	mpScene->OnEvent(event);
-	//}
+	SDL_Event event;
+	while (SDL_PollEvent(&event))
+	{
+		if (event.type == SDL_EVENT_QUIT)
+			return false;
+	}
 }
 
 void GameManager::Update()
@@ -148,14 +171,16 @@ void GameManager::Update()
 
 void GameManager::Draw()
 {
-	//mpWindow->clear(mClearColor);
-	//
-	//for (Entity* entity : mEntities)
-	//{
-	//	mpWindow->draw(*entity->GetShape());
-	//}
-	//
-	//Debug::Get()->Draw(mpWindow);
+	// Color stores its channels as 0xAARRGGBB.
+	const Uint32 color = static_cast<Uint32>(mClearColor.argb);
+	SDL_SetRenderDrawColor(mpRenderer,
+		static_cast<Uint8>((color >> 16) & 0xFF),
+		static_cast<Uint8>((color >> 8) & 0xFF),
+		static_cast<Uint8>(color & 0xFF),
+		static_cast<Uint8>((color >> 24) & 0xFF));
+	SDL_RenderClear(mpRenderer);
 
-	//mpWindow->display();
+	// Draw entities and debug shapes here using mpRenderer.
+
+	SDL_RenderPresent(mpRenderer);
 }

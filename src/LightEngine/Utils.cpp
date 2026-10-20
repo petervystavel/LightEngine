@@ -1,5 +1,3 @@
-//#include <SFML/System/Vector2.hpp>
-
 #include "Utils.h"
 
 #include <cmath>
@@ -8,17 +6,7 @@ namespace Utils
 {
     bool Normalize(Vector2f& vector)
     {
-        float magnitude = std::sqrt(vector.x * vector.x + vector.y * vector.y);
-
-		if (magnitude != 0)
-		{
-			vector.x /= magnitude;
-			vector.y /= magnitude;
-		
-			return true;
-		}
-
-		return false;
+        return vector.Normalize();
     }
 
 	float GetDistance(int x1, int y1, int x2, int y2)

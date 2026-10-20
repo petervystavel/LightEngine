@@ -17,19 +17,23 @@ class Entity
 {
     struct Target 
     {
-		Vector2i position;
+		Vector2f position;
         float distance;
 		bool isSet;
     };
 
 protected:
-    Circle mShape;
+	//Circle
+	Vector2f mPosition = {0, 0};
+	float mRadius;
+	Color mColor;
+
     Vector2f mDirection;
 	Target mTarget;
     float mSpeed = 0.f;
-    bool mToDestroy = false;
     int mTag = -1;
 	bool mRigidBody = false;
+	bool mToDestroy = false;
 
 public:
 	bool GoToDirection(int x, int y, float speed = -1.f);
@@ -43,11 +47,10 @@ public:
 	bool IsRigidBody() const { return mRigidBody; }
 
     Vector2f GetPosition(float ratioX = 0.5f, float ratioY = 0.5f) const;
-	/*sf::Shape* GetShape() { return &mShape; }*/
 
 	bool IsTag(int tag) const { return mTag == tag; }
     bool IsColliding(Entity* other) const;
-	bool IsInside(float x, float y) const;
+	bool IsPointInside(float x, float y) const;
 
     void Destroy();
 	bool ToDestroy() const { return mToDestroy; }
@@ -72,7 +75,7 @@ protected:
 	
 private:
     void Update();
-	void Initialize(float radius, const sf::Color& color);
+	void Initialize(float radius, const Color& color);
 	void Repulse(Entity* other);
 
     friend class GameManager;

@@ -1,16 +1,6 @@
 #pragma once
 
-//#include <SFML/System/Vector2.hpp>
-
-struct Vector2f
-{
-	float x, y;
-};
-
-struct Vector2i
-{
-	int x, y;
-};
+#include "Vector.h"
 
 struct Circle
 {
