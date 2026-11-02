@@ -201,12 +201,16 @@ void GameManager::Draw()
         mClearColor.r, mClearColor.g, mClearColor.b, mClearColor.a);
     SDL_RenderClear(mpRenderer);
 
+    Debug::Draw(mpRenderer, mpTextEngine, mpFont, 0);
+
     for (Entity* entity : mEntities)
     {
         entity->Draw(mpRenderer);
     }
 
-    Debug::Draw(mpRenderer, mpTextEngine, mpFont);
+    Debug::Draw(mpRenderer, mpTextEngine, mpFont, 1);
+
+    Debug::Clear();
 
     SDL_RenderPresent(mpRenderer);
 }

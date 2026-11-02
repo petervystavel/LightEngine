@@ -84,6 +84,17 @@ Vector2f Vector2f::operator-(const Vector2f& other) const
     return { x - other.x, y - other.y };
 }
 
+Vector2f Vector2f::operator*(const Vector2f& other) const
+{
+    return { x * other.x, y * other.y };
+}
+
+
+Vector2f Vector2f::operator/(const Vector2f& other) const
+{
+    return { x / other.x, y / other.y };
+}
+
 Vector2f Vector2f::operator*(float scalar) const
 {
     return { x * scalar, y * scalar };
@@ -103,6 +114,14 @@ Vector2f& Vector2f::operator+=(const Vector2f& other)
 {
     x += other.x;
     y += other.y;
+
+    return *this;
+}
+
+Vector2f& Vector2f::operator-=(const Vector2f& other)
+{
+    x -= other.x;
+    y -= other.y;
 
     return *this;
 }
