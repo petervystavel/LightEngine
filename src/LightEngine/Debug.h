@@ -13,7 +13,7 @@ class Debug
 {
     Debug() = delete;
 
-    inline static std::vector<Line> mLines[2];
+    inline static std::vector<Segment> mLines[2];
     inline static std::vector<Rectangle> mRectangles[2];
     inline static std::vector<Circle> mCircles[2];
     inline static std::vector<Text> mTexts[2];

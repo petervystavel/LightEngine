@@ -18,7 +18,7 @@ void Rectangle::Draw(SDL_Renderer* renderer) const
         SDL_RenderRect(renderer, &rect);
 }
 
-void Line::Draw(SDL_Renderer* renderer) const
+void Segment::Draw(SDL_Renderer* renderer) const
 {
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     SDL_RenderLine(renderer, a.x, a.y, b.x, b.y);

@@ -4,7 +4,7 @@
 
 void Debug::Draw(SDL_Renderer* renderer, TTF_TextEngine* textEngine, TTF_Font* font, int layer)
 {
-    for (const Line& line : mLines[layer])
+    for (const Segment& line : mLines[layer])
     {
         line.Draw(renderer);
     }
@@ -38,7 +38,7 @@ void Debug::Clear()
 
 void Debug::DrawLine(Vector2f a, Vector2f b, const Color& color, bool front)
 {
-    Line line;
+    Segment line;
     line.a = a;
     line.b = b;
     line.color = color;

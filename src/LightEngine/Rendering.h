@@ -26,7 +26,7 @@ struct Rectangle : public Geometry
     void Draw(SDL_Renderer* renderer) const override;
 };
 
-struct Line : public Geometry
+struct Segment : public Geometry
 {
     Vector2f a;
     Vector2f b;
@@ -55,4 +55,10 @@ struct Text
     float ratioY = 0.f;
 
     void Draw(TTF_TextEngine* engine, TTF_Font* font) const;
+};
+
+struct Line
+{
+    Vector2f point;
+    Vector2f normal;
 };
