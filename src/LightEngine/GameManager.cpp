@@ -159,21 +159,16 @@ void GameManager::Update()
     //Collision
     for (auto it1 = mEntities.begin(); it1 != mEntities.end(); ++it1)
     {
+        Entity* entity = *it1;
+
         auto it2 = it1;
         ++it2;
         for (; it2 != mEntities.end(); ++it2)
         {
-            Entity* entity = *it1;
             Entity* otherEntity = *it2;
 
-            if (entity->ToDestroy() || otherEntity->ToDestroy())
-                continue;
-
-            if (entity->IsColliding(otherEntity) == false)
-                continue;
-
-            if (entity->IsRigidBody() && otherEntity->IsRigidBody())
-                entity->Repulse(otherEntity);
+            continue;
+            //#TODO
 
             entity->OnCollision(otherEntity);
             otherEntity->OnCollision(entity);
