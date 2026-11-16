@@ -18,28 +18,6 @@ void Entity::Initialize(float radius, const Color& color)
     OnInitialize();
 }
 
-bool Entity::IsColliding(Entity* other) const
-{
-    Vector2f pos1 = GetPosition();
-    Vector2f pos2 = other->GetPosition();
-
-    float distSqr = Vector2f::DistanceSqr(pos1, pos2);
-
-    float radius1 = mCircle.radius;
-    float radius2 = other->mCircle.radius;
-
-    float radiusSqr = (radius1 + radius2) * (radius1 + radius2);
-
-    return distSqr < radiusSqr;
-}
-
-bool Entity::IsPointInside(Vector2f point) const
-{
-    Vector2f currentPos = GetPosition();
-
-    return Vector2f::DistanceSqr(currentPos, point) < (mCircle.radius * mCircle.radius);
-}
-
 void Entity::Destroy()
 {
     if (mToDestroy)

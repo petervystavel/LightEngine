@@ -23,8 +23,6 @@ public:
     Vector2f GetPosition(float ratioX = 0.5f, float ratioY = 0.5f) const;
 
     bool IsTag(int tag) const { return mTag == tag; }
-    bool IsColliding(Entity* other) const;
-    bool IsPointInside(Vector2f point) const;
 
     void Destroy();
     bool ToDestroy() const { return mToDestroy; }
